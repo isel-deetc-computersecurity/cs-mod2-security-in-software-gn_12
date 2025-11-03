@@ -1,0 +1,52 @@
+name: "Manual CodeQL Analysis"
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+      languages:
+        description: 'Languages to analyze (comma-separated)'
+        required: true
+        default: 'Javascript,Typescript'
+      environment:
+        description: 'Environment for CodeQL Analysis'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+jobs:
+  codeql-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v2
+
+      - name: "Set up CodeQL"
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ inputs.languages }}
+
+      - name: "Run CodeQL analysis"
+        uses: github/codeql-action/analyze@v2
+
+      - name: "Log inputs"
+        run: |
+          echo "Log level: $LEVEL"
+          echo "Languages: $LANGUAGES"
+          echo "Environment: $ENVIRONMENT"
+        env:
+          LEVEL: ${{ inputs.logLevel }}
+          LANGUAGES: ${{ inputs.languages }}
+          ENVIRONMENT: ${{ inputs.environment }}
